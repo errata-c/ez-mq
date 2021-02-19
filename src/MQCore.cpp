@@ -15,7 +15,7 @@ namespace ez {
 	{
 		ctx = zmq_ctx_new();
 		if (ctx == nullptr) {
-			throw std::exception("Failed to create ZeroMQ context!");
+			throw std::logic_error("Failed to create ZeroMQ context!");
 		}
 
 		int res = zmq_ctx_set(ctx, ZMQ_IO_THREADS, 0);
@@ -27,28 +27,23 @@ namespace ez {
 			switch (res) {
 			case EINVAL:
 			case EFAULT:
-				std::cerr << "If you get this error message, there is a bug in the ez-mq library.\n";
-				assert(false);
-				std::terminate();
+				throw std::logic_error("If you get this error message, there is a bug in the ez-mq library.");
 				break;
 			case EMFILE:
-				std::cerr << "The total number of ZeroMQ sockects has been reached, somehow...\n";
-				assert(false);
+				throw std::logic_error("The total number of ZeroMQ sockets has been reached.");
 				break;
 			case ETERM:
-				std::cerr << "The ZeroMQ context was terminated before the defer socket could be created!\n";
-				assert(false);
+				throw std::logic_error("The ZeroMQ context was terminated before the defer socket could be created!");
 				break;
 			default:
-				assert(false);
+				throw std::logic_error("Some unknown kind of error with libzeromq.");
 				break;
 			}
 		}
 		else {
 			res = zmq_bind(deferSock, "inproc://defer");
 			if (res == -1) {
-				std::cerr << "Failed to bind the defer socket to 'inproc://defer'\n";
-				assert(false);
+				throw std::logic_error("Failed to bind the defer socket to 'inproc://defer'");
 			}
 		}
 	}
