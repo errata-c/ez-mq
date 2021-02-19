@@ -13,8 +13,15 @@ find_package(ez-serialize CONFIG REQUIRED)
 add_library(ez-mq STATIC
 "src/MQCore.cpp"
 )
-target_link_libraries(ez-mq PUBLIC libzmq ez-serialize)
-target_include_directories(ez-mq PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" "$<INSTALL_INTERFACE:include>")
+target_link_libraries(ez-mq PUBLIC libzmq ez::serialize)
+target_include_directories(ez-mq PUBLIC 
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>" 
+	"$<INSTALL_INTERFACE:include>"
+)
+
+set_target_properties(ez-mq PROPERTIES EXPORT_NAME "mq")
+
+add_library(ez::mq ALIAS ez-mq)
 
 add_subdirectory("test")
 
@@ -33,10 +40,11 @@ install(TARGETS ez-mq
 )
 
 install_package(
-NAME ez-mq
-EXPORT ez-mq-targets
-DESTINATION DEFAULT
-COMPATIBILITY SameMajorVersion
-PRECONFIG "${CMAKE_CURRENT_SOURCE_DIR}/preconfig.cmake"
-VERSION ${EZ_MQ_VERSION}
+	NAME "ez-mq"
+	NAMESPACE "ez::"
+	EXPORT "ez-mq-targets"
+	DESTINATION DEFAULT
+	COMPATIBILITY SameMajorVersion
+	PRECONFIG "preconfig.cmake"
+	VERSION ${EZ_MQ_VERSION}
 )
