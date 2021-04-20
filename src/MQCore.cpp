@@ -93,7 +93,7 @@ namespace ez {
 			res = zmq_recv(deferSock, arr, sizeof(arr), ZMQ_DONTWAIT);
 			if (res == sizeof(arr)) {
 				const std::uint8_t* read = arr;
-				std::function<void()>* ptr = (std::function<void()>*)deserialize::ptr(read);
+				std::function<void()>* ptr = (std::function<void()>*)deserialize::ptr(read, read + sizeof(nullptr));
 
 				(*ptr)();
 
@@ -130,7 +130,7 @@ namespace ez {
 		assert(ptr != nullptr);
 		
 		std::uint8_t arr[sizeof(ptr)];
-		serialize::ptr(ptr, arr);
+		serialize::ptr(ptr, arr, arr + sizeof(ptr));
 
 		res = zmq_send(sock, arr, sizeof(arr), 0);
 		assert(res != -1);
